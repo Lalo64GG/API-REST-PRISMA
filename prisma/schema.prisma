@@ -19,4 +19,15 @@ model Users {
   password String
   name String
   last_name String?
+  sisyphus_library sisyphus_library[]
+}
+
+
+model sisyphus_library{
+  id String @id
+  title String?
+  content String
+  user_id String
+  user Users @relation(fields : [user_id], references: [id])
+  created_at DateTime @default(now())
 }
