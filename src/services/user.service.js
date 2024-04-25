@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { v4 as uuid } from 'uuid'
+import bcryptMiddleware from "../middleware/bycript.middleware.js";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ const create = async({ email, password, name, last_name }) => {
             data: {
                 id: userId,
                 email,
-                password,
+                password: await bcryptMiddleware.hashedPassword(password),
                 name,
                 last_name
             }
@@ -25,6 +26,7 @@ const create = async({ email, password, name, last_name }) => {
         
     } catch (error) {
         console.log(error.message);
+        throw new Error(error.message);
     }
 }
 
@@ -39,6 +41,7 @@ const getAll = async() => {
         return users;
     } catch (error) {
         console.log(error.message);
+        throw new Error(error.message);
     }
 }
 
@@ -57,6 +60,7 @@ const getId = async(id) => {
         return user;
     } catch (error) {
         console.log(error.message);
+        throw new Error(error.message);
     }
 }
 
@@ -96,6 +100,7 @@ const deleteId = async(id) => {
         return userDelete
     }catch( error) {
         console.log(error.message);
+        throw new Error(error.message);
     }
 }
 

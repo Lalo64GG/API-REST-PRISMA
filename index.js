@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv'
 import userRoute from './src/routes/user.route.js';
+import authRoute from './src/routes/auth.route.js'
 import cors from './src/middleware/cors.middleware.js';
 
 dotenv.config();
@@ -11,6 +12,7 @@ app.use(cors)
 app.use(express.json())
 
 app.use('/users', userRoute);
+app.use('/login', authRoute)
 
 const port = process.env.PORT || 5000;
 
