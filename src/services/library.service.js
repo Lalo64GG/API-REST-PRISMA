@@ -19,7 +19,6 @@ const create = async ({ title, content, user_id }) => {
     if (!book) {
       throw new Error("Couldn't create book");
     }
-
     return book;
   } catch (error) {
     console.log(error.message);

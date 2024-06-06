@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcryptMiddleware from "../middleware/bycript.middleware.js";
-import generateToken from "../middleware/Jwt.middleware.js";
+import generarJWT from "../helpers/generarJWT.js";
 
 const prisma = new PrismaClient();
 
@@ -22,10 +22,13 @@ const auth = async ({ email, password }) => {
       throw new Error("Password is not valid");
     }
 
+    const token = await generarJWT(user.id);
+    
+
     return {
         id: user.id,
         email: user.email,
-        token: generateToken()
+        token
     }
   } catch (error) {
     console.error(error.message);

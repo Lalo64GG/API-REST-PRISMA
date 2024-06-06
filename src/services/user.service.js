@@ -29,7 +29,7 @@ const create = async({ email, password, name, last_name }) => {
         throw new Error(error.message);
     }
 }
-
+//puto el que lo lea
 const getAll = async() => {
     try {
         const users = await prisma.users.findMany();

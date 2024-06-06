@@ -1,3 +1,4 @@
+import { request } from "express";
 import libraryService from "../services/library.service.js";
 
 const create = async (req, res) => {
@@ -44,9 +45,10 @@ const getAll = async (req, res) => {
   }
 };
 
-const getId = async (req, res) => {
+const getId = async (req = request, res) => {
+  
   try {
-    const book = await libraryService.getId(id);
+    const book = await libraryService.getId(req.params.id);
 
     if (!book) {
       return res.status(404).json({
@@ -80,9 +82,9 @@ const update = async (req, res) => {
     }
 
     const dataToUpdate = {
-      title: title || book.title,
-      content: content || book.content,
-      user_id: user_id || book.user_id,
+      title: title ,
+      content: content ,
+      user_id: user_id ,
     };
 
     await libraryService.update(id, dataToUpdate);
