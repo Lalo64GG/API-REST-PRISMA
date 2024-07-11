@@ -20,6 +20,7 @@ model Users {
   name String
   last_name String?
   sisyphus_library sisyphus_library[]
+  message Message[]
 }
 
 
@@ -30,4 +31,22 @@ model sisyphus_library{
   user_id String
   user Users @relation(fields : [user_id], references: [id])
   created_at DateTime @default(now())
+  
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  user      Users     @relation(fields: [userId], references: [id])
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Room {
+  id        String   @id @default(uuid())
+  name      String
+  messages  Message[]
+  createdAt DateTime @default(now())
 }

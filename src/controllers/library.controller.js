@@ -1,7 +1,27 @@
 import { request } from "express";
+import multer from "multer";
+import path from "path";
 import libraryService from "../services/library.service.js";
+import fs from "fs";
 
-const create = async (req, res) => {
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+export const uploads = upload.single("myFile");
+
+export const uploadFile = async (req, res) => {
+  return res.json({ msg: "File uploaded successfully" });
+};
+
+export const create = async (req, res) => {
   try {
     const book = await libraryService.create(req.body);
 
@@ -23,7 +43,7 @@ const create = async (req, res) => {
   }
 };
 
-const getAll = async (req, res) => {
+export const getAll = async (req, res) => {
   try {
     const books = await libraryService.getAll();
 
@@ -45,8 +65,7 @@ const getAll = async (req, res) => {
   }
 };
 
-const getId = async (req = request, res) => {
-  
+export const getId = async (req = request, res) => {
   try {
     const book = await libraryService.getId(req.params.id);
 
@@ -68,7 +87,7 @@ const getId = async (req = request, res) => {
   }
 };
 
-const update = async (req, res) => {
+export const update = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content, user_id } = req.body;
@@ -82,9 +101,9 @@ const update = async (req, res) => {
     }
 
     const dataToUpdate = {
-      title: title ,
-      content: content ,
-      user_id: user_id ,
+      title: title,
+      content: content,
+      user_id: user_id,
     };
 
     await libraryService.update(id, dataToUpdate);
@@ -101,7 +120,7 @@ const update = async (req, res) => {
   }
 };
 
-const deletedId = async (req, res) => {
+export const deletedId = async (req, res) => {
   try {
     const { id } = req.params;
     const book = await libraryService.deletedId(id);
@@ -118,10 +137,25 @@ const deletedId = async (req, res) => {
   }
 };
 
-export default { 
-    create,
-    getAll,
-    getId,
-    update,
-    deletedId,
-}
+// Nueva función para la descarga de archivos
+export const downloadFile = async (req, res) => {
+  const { filename } = req.params;
+  const filePath = path.resolve("src/uploads", filename);
+
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      return res.status(404).json({
+        message: "File not found",
+      });
+    }
+
+    res.download(filePath, filename, (err) => {
+      if (err) {
+        return res.status(500).json({
+          message: "An error occurred while downloading the file",
+          error: err.message,
+        });
+      }
+    });
+  });
+};

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const socket = io("http://localhost:4000");
+
+        const form = document.getElementById("form");
+        const input = document.getElementById("input");
+        const messages = document.getElementById("messages");
+        const roomInput = document.getElementById("roomInput");
+        const joinRoomButton = document.getElementById("joinRoomButton");
+
+        let currentRoom = "";
+
+        socket.on("chat message", (msg) => {
+          const item = document.createElement("li");
+          item.textContent = `${msg.userId}: ${msg.content}`;
+          messages.appendChild(item);
+        });
+
+        joinRoomButton.addEventListener("click", () => {
+          const roomId = roomInput.value;
+          if (roomId) {
+            socket.emit("join room", roomId);
+            currentRoom = roomId;
+            messages.innerHTML = ""; // Clear messages on room change
+          }
+        });
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (currentRoom) {
+            const messageContent = input.value;
+            socket.emit("chat message", {
+              content: messageContent,
+              userId: "some-user-id",
+              roomId: currentRoom,
+            });
+            input.value = "";
+          } else {
+            alert("Please join a room first.");
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <input id="roomInput" placeholder="Room ID" />
+    <button id="joinRoomButton">Join Room</button>
+    <ul id="messages"></ul>
+    <form id="form">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+</html>

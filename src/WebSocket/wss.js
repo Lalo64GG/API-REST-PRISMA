@@ -1,21 +1,41 @@
 import { Server } from "socket.io";
-import { createServer } from "http";
+import messageService from "../services/message.service.js";
 
-const startServerSocket = () => {
-  const httpServer = createServer();
-  const io = new Server(httpServer);
+let io;
+
+const startServerSocket = (server) => {
+  io = new Server(server, {
+    cors: {
+      origin: "*",
+    },
+  });
 
   io.on("connection", (socket) => {
     console.log("User connected");
-  });
 
-  io.on("message", (message) => {
-    console.log(`User message:  ${message}`);
-  });
+    // Join a room
+    socket.on("join room", (roomId) => {
+      socket.join(roomId);
+      console.log(`User joined room: ${roomId}`);
+    });
 
-  httpServer.listen(4000, () => {
-    console.log("Server Socket is running on port 4000");
+    // Handle incoming chat messages
+    socket.on("chat message", async (msg) => {
+      console.log(`Message received in room ${msg.roomId}: ${msg.content}`);
+      
+      // Save the message to the database
+      const savedMessage = await messageService.create(msg);
+
+      // Emit the saved message to all clients in the room
+      io.to(msg.roomId).emit("chat message", savedMessage);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
+    });
   });
 };
 
-export default startServerSocket;
+const getIO = () => io;
+
+export { startServerSocket, getIO };
